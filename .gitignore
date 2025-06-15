@@ -1,0 +1,7 @@
+*.spyproject
+
+*.parquet
+
+*.csv
+
+*.xlsx
