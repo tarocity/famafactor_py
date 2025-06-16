@@ -1,7 +1,9 @@
-*.spyproject
+.spyproject
 
 *.parquet
 
 *.csv
 
 *.xlsx
+
+.ipynb_checkpoints
