@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 29 22:15:09 2025
-
-@author: e1155_l2c4ye3
-"""
 
 import pandas as pd
-import numpy as np
 # adjprice_to20250227
 adjprice_to20250227 = pd.read_parquet('adjprice_to20250227.parquet')
 check_df = adjprice_to20250227.describe()
@@ -22,7 +16,7 @@ adjprice_from20250102.to_csv(
 
 # monthret_to202503
 monthret_to202503 = pd.read_parquet('monthret_to202503.parquet')
-# MySQL does not recognise NaN values in CSV files.
+# MySQL does not recognize NaN values in CSV files.
 # Replace all NaN values with NULL.
 # the max ret is 56.667 so
 # replace np.nan with 123, then replace 123 with NULL in MySQL

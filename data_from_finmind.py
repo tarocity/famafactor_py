@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 11 23:07:14 2025
-
-@author: e1155_l2c4ye3
-"""
-
 #%% code_list
 import pandas as pd
 TSE_company = pd.read_csv('TSE_company.csv')
@@ -63,15 +57,7 @@ for i in range(0,len(code_list)):
             break
             
         
-    
-    
-    
-
-
-
-# BalanceSheet.to_parquet('BalanceSheet.parquet')
-# TWBalceSht_2024.to_parquet('TWBalceSht_2024.parquet')
-# BalanceSheet = pd.read_parquet('BalanceSheet.parquet')
+BalanceSheet.to_parquet('balancesheet.parquet')
 #%% FinancialStatements
 import requests
 import pandas as pd
@@ -114,8 +100,8 @@ for i in range(0,len(code_list) ):
         else:
             break
         
-# FinStat.to_csv('TWFinStat.csv',index = False,encoding='big5') 
-FinStat.to_parquet('TWFinStat_2024Q4.parquet')
+
+FinStat.to_parquet('incomestatement.parquet')
 
 #%% TWMarketCap
 import requests
@@ -161,8 +147,7 @@ for i in range(0,len(code_list) ):
             break
         
 
-# TWMarketCap.to_parquet('TWMarketCap.parquet')
-# TWMarketCap.to_parquet('TWMarketCap_202504.parquet')
+TWMarketCap.to_parquet('marketcap.parquet')
 #%% 加權、櫃買報酬指數
 import requests
 import pandas as pd
@@ -178,61 +163,8 @@ parameter = {
 resp = requests.get(url, params=parameter)
 TAIEX_index = resp.json()
 TAIEX_index = pd.DataFrame(TAIEX_index["data"])
-TAIEX_index.to_parquet('TAIEX_index.parquet')
+TAIEX_index.to_parquet('taiex.parquet')
 #%%
-import pandas as pd
-# TWFinStmt.to_parquet('TWFinStmt.parquet')
-# TWBalceSht.to_parquet('TWBalceSht.parquet')
-
-TWBalceSht = pd.read_parquet('TWBalceSht.parquet')
-TWFinStmt = pd.read_parquet('TWFinStmt.parquet')
-TWMarketCap = pd.read_parquet('TWMarketCap.parquet')
-TAIEX_index = pd.read_parquet('TAIEX_index.parquet')
-#
-TWBalceSht_2024 = pd.read_parquet('TWBalceSht_2024.parquet')
-TWFinStmt_2024 = pd.read_parquet('TWFinStmt_2024.parquet')
-TWMarketCap_to2025 = pd.read_parquet('TWMarketCap_to2025.parquet')
-
-
-#%% process 2024Q4 TWBalceSht TWFinStmt MKTCAP
-import pandas as pd
-TWBalceSht = pd.read_parquet('TWBalceSht.parquet')
-BalanceSheet_2024Q4 = pd.read_parquet('BalanceSheet_2024Q4.parquet')
-TWBalceSht.info()
-BalanceSheet_2024Q4.info()
-
-BalceSht_d2024Q4 = TWBalceSht.assign(
-    stock_id = TWBalceSht.stock_id.astype('str')).loc[
-        lambda x: x.date < '2024-12-01']
-
-TWBalceSht_2024 = pd.concat([BalceSht_d2024Q4,BalanceSheet_2024Q4])
-
-TWBalceSht_2024.info()
-
-TWBalceSht_2024.to_parquet('TWBalceSht_2024.parquet')
-############
-
-TWFinStat_2024Q4 = pd.read_parquet('TWFinStat_2024Q4.parquet')
-TWFinStmt = pd.read_parquet('TWFinStmt.parquet')
-TWFinStat_2024Q4.info()
-TWFinStmt.info()
-
-TWFinStmt_d2024Q4 = TWFinStmt.loc[lambda x: x.date <= '2024-12-01']
-
-TWFinStmt_2024 = pd.concat([TWFinStmt_d2024Q4,TWFinStat_2024Q4])
-
-TWFinStmt_2024.to_parquet('TWFinStmt_2024.parquet')
-###
-TWMarketCap_202504 = pd.read_parquet('TWMarketCap_202504.parquet')
-TWMarketCap = pd.read_parquet('TWMarketCap.parquet')
-
-TWMarketCap_b2025 = TWMarketCap.loc[lambda x :x.date < '2025-01-01']
-TWMarketCap_b2025.info()
-TWMarketCap_202504.info()
-
-TWMarketCap_to2025 = pd.concat([TWMarketCap_b2025,TWMarketCap_202504])
-
-TWMarketCap_to2025.to_parquet('TWMarketCap_to2025.parquet')
 
 
 

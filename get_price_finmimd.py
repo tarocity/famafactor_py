@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Mar 15 21:19:04 2025
 
-@author: e1155_l2c4ye3
-"""
 #%% code_list
 import pandas as pd
 TSE_company = pd.read_csv('TSE_company.csv')

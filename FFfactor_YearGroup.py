@@ -1,39 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 20 12:33:14 2025
-
-@author: e1155_l2c4ye3
-"""
-
 import pandas as pd
 import numpy as np
 FF_MC = pd.read_parquet('marketcap.parquet')
-# 直接刪除當年公司年底 MC 為 0 的公司
+# 刪除年底 MC 為 0 的公司
 FF_MC = FF_MC.sort_values(['stock_id','date']).\
     assign(year = 
            lambda x: x.date.str.slice_replace(start=-5,repl ='12-01')).\
     groupby(['stock_id','year'],as_index = False).market_value.\
     agg([('MC', lambda x: x.tail(n = 1) )]).loc[lambda x: x.MC != 0]
 
-#
-# 資產負債表抓出總資產跟淨值
+# 總資產,淨值
 FF_AstEqt = pd.read_parquet('balancesheet.parquet')
 FF_AstEqt = FF_AstEqt[FF_AstEqt['type'].isin(['Equity','TotalAssets'])]
 
 FF_AstEqt = FF_AstEqt.pivot(index = ['date','stock_id'],
                          columns = 'type',
                          values = 'value').reset_index()
-
 FF_AstEqt = FF_AstEqt.assign(
     date = lambda x: x.date.str.slice_replace(start = -2,repl = '01'),
     stock_id = lambda x: x.stock_id.astype('str')).rename(
         columns = {'date':'year'}).loc[
             lambda x: x.Equity > 0]
-    
 FF_AstEqt = FF_AstEqt[FF_AstEqt.year.str.contains('12-01')]
 
-#
-
+#損益表
 FF_OP = pd.read_parquet('incomestatement.parquet')
 FF_OP = FF_OP[
     lambda x: x.type.isin(['Revenue','CostOfGoodsSold','OperatingExpenses'])]
@@ -103,18 +93,18 @@ FF_material = FF_material[['year','stock_id','MC',
 
 # monthly return section
 # =============================================================================
-# FF_ret = pd.read_parquet('monthret_to202503.parquet')
-# FF_ret = FF_ret.rename(columns = {'Mtrue_ret':'ret','month':'ret_date'}) 
+FF_ret = pd.read_parquet('monthret_to202503.parquet')
+FF_ret = FF_ret.rename(columns = {'Mtrue_ret':'ret','month':'ret_date'}) 
 
-# Corresponding = pd.DataFrame({
-#     'ret_date':pd.Series(pd.date_range(
-#         start = '2001-07-01',end='2026-06-01', freq = 'MS')).\
-#         dt.date.astype('str'),
-#     # 因為 quarter 有重複值, 他的serires.index 也是重複值:0,0,0,1,1,1....
-#     'year':pd.Series(pd.date_range(
-#         start = '2000-12-01',end='2024-12-01', freq = '12MS')).\
-#         repeat(12).dt.date.astype('str').reset_index(drop = True) 
-#     }) 
+Corresponding = pd.DataFrame({
+    'ret_date':pd.Series(pd.date_range(
+        start = '2001-07-01',end='2026-06-01', freq = 'MS')).\
+        dt.date.astype('str'),
+    # 因為 quarter 有重複值, 他的serires.index 也是重複值:0,0,0,1,1,1....
+    'year':pd.Series(pd.date_range(
+        start = '2000-12-01',end='2024-12-01', freq = '12MS')).\
+        repeat(12).dt.date.astype('str').reset_index(drop = True) 
+    }) 
     
 # =============================================================================
 
@@ -165,7 +155,7 @@ RMW_data = factor_cal.assign(
     assign(Port = 
            lambda x: x.g_size.astype('str') +''+ x.g_op.astype('str')).\
         drop(columns = ['g_size','g_op'])
-#
+
 CMA_data = factor_cal.assign(
     GMktCap = factor_cal.groupby(['ret_date','g_size','g_inv'],\
                                  as_index = False).MC.\
@@ -197,29 +187,29 @@ FF5_wide = FF5_long.pivot(index='ret_date',columns='Port',values='Portret').\
                               x.s2inv1+x.s2inv2+x.s2inv3))/9)
 # monthly return section
 # =============================================================================
-# TAIEX_index = pd.read_parquet('taiex.parquet')
-# TAIEX_mret = TAIEX_index.sort_values(['date']).assign(
-#     ret_date = lambda x: x.date.str.slice_replace(
-#         start = -2, repl = '01')).groupby('ret_date').tail(1).assign(
-#     ret = lambda x:
-#         (x.price-x.price.shift(1))/x.price)[['ret_date','ret']]
-# TW10yearbond = pd.read_csv('臺灣十年期國債債券報酬率歷史數據.csv')
-# RFrate_month = TW10yearbond[['日期','收市']].rename(
-#     columns = {'日期':'date','收市':'RFrate'}).\
-#     assign(
-#     date = lambda x: 
-#         pd.to_datetime(x.date,format='%Y/%m/%d').dt.strftime('%Y-%m-%d'),
-#     ret_date = lambda x: x.date.str.slice_replace(start = -2,repl = '01')).\
-#     sort_values('date').groupby('ret_date',as_index = False).tail(1).\
-#     assign(RFrate = lambda x: x.RFrate/(12*100))[['ret_date','RFrate']]
-#     #年利率轉月
-# #
-# MKTPR_wide = pd.merge(TAIEX_mret,RFrate_month,
-#                        on='ret_date',how='left').dropna()
-# MKTPR_wide = MKTPR_wide.assign(
-#     MKTPR = lambda x: x.ret - x.RFrate)[['ret_date','MKTPR']]
-# FF5_wide = pd.merge(FF5_wide, MKTPR_wide,
-#                     on='ret_date',how='left')  
+TAIEX_index = pd.read_parquet('taiex.parquet')
+TAIEX_mret = TAIEX_index.sort_values(['date']).assign(
+    ret_date = lambda x: x.date.str.slice_replace(
+        start = -2, repl = '01')).groupby('ret_date').tail(1).assign(
+    ret = lambda x:
+        (x.price-x.price.shift(1))/x.price)[['ret_date','ret']]
+TW10yearbond = pd.read_csv('臺灣十年期國債債券報酬率歷史數據.csv')
+RFrate_month = TW10yearbond[['日期','收市']].rename(
+    columns = {'日期':'date','收市':'RFrate'}).\
+    assign(
+    date = lambda x: 
+        pd.to_datetime(x.date,format='%Y/%m/%d').dt.strftime('%Y-%m-%d'),
+    ret_date = lambda x: x.date.str.slice_replace(start = -2,repl = '01')).\
+    sort_values('date').groupby('ret_date',as_index = False).tail(1).\
+    assign(RFrate = lambda x: x.RFrate/(12*100))[['ret_date','RFrate']]
+    #年利率轉月
+#
+MKTPR_wide = pd.merge(TAIEX_mret,RFrate_month,
+                       on='ret_date',how='left').dropna()
+MKTPR_wide = MKTPR_wide.assign(
+    MKTPR = lambda x: x.ret - x.RFrate)[['ret_date','MKTPR']]
+FF5_wide = pd.merge(FF5_wide, MKTPR_wide,
+                    on='ret_date',how='left')  
 
 # =============================================================================
 
@@ -252,21 +242,14 @@ FF5_wide = FF5_wide.loc[lambda x: x.ret_date < '2025-04-01']
 FF5_long = FF5_wide.melt(id_vars = 'ret_date',
                     var_name = 'Port',
                     value_name = 'Portret')
+
 # %%    
 ls = %who_ls
-vtr = [x for x in ls if x not in ['FF5_long','FF5_wide','month_y','day_y'] ]
+vtr = [x for x in ls if x not in ['FF5_long','FF5_wide','pd','np'] ]
 for x in vtr:
     del globals()[x]
 del ls,x,vtr
     
-#%%                           ,年四月      ,tej 7月
-FF5_wide.HML.mean()  #0.002929, 0.001976, 0.348118
-FF5_wide.RMW.mean()  #0.002565, 0.001738, 0.029225
-FF5_wide.CMA.mean()  #0.000253,-0.000960,-0.133316
-FF5_wide.SMB_3.mean()#0.001398, 0.000937, 0.122628
-FF5_wide.SMB_5.mean()#0.002081, 0.001124, 0.1698539
-FF5_wide.MKTPR.mean()  #0.010429, 0.010652, 0.0091457
-
 #%%
 
 def FF_YearGroup(ret_freq):
@@ -531,44 +514,8 @@ def FF_YearGroup(ret_freq):
    
 import pandas as pd
 import numpy as np
-month_y['FF5_wide'].to_string()
-month_y = FF_YearGroup( ret_freq= 'month')        
-day_y = FF_YearGroup( ret_freq= 'day')        
 
-from scipy import stats
-ttest_ar = np.array( month_y[1].SMB_3 )
-t_stat, p_value = stats.ttest_1samp(ttest_ar, 0)
-print("T statistic:", t_stat)
-print("P-value:", p_value)
+month_fama = FF_YearGroup( ret_freq= 'month')        
+day_fama = FF_YearGroup( ret_freq= 'day')        
 
 
-AAA = month_y[0].compare(FF5_long)
-BBB = month_y[1].compare(FF5_wide)
-
-FF5_long = FF5_long.assign(
-    Portret = lambda x: x.Portret*100)
-AAA = day_y[0].compare(FF5_long)
-BBB = day_y[1].compare(FF5_wide)
-
-
-
-month_y[1].isna().sum()
-month_y[1].HML.mean()  #0.0029293519976766706
-month_y[1].RMW.mean()  #0.002565074814920454
-month_y[1].CMA.mean()  #0.0002530267390224755
-month_y[1].SMB_3.mean()#0.0013984889755610395
-month_y[1].SMB_5.mean()#0.0020810683971280892
-month_y[1].MKTPR.mean()#0.008482306883503835
-    
-
-day_y[1].isna().sum()
-day_y[1].HML.mean()  #0.0001172687660481006
-day_y[1].RMW.mean()  #0.00015961425798109903
-day_y[1].CMA.mean()  #1.9451643273232913e-05
-day_y[1].SMB_3.mean()#4.332826116483128e-05
-day_y[1].SMB_5.mean()#7.689493334693046e-05
-day_y[1].MKTPR.mean()#0.00045486935673261914
-
-
-
-TW10yearbond = pd.read_csv('臺灣十年期國債債券報酬率歷史數據.csv')
