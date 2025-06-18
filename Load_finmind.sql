@@ -54,7 +54,7 @@ UPDATE monthret_to202503 SET ret = NULL WHERE ret = 123;
 # dayret_to20250402, replace 123 with NULL
 CREATE TABLE dayret_to20250402(
 	stock_id VARCHAR(20),
-    month DATE,
+    date DATE,
     ret DOUBLE);
 LOAD DATA INFILE 'C:/Users/e1155_l2c4ye3/Desktop/finmind_data/dayret_to20250402.csv'
 INTO TABLE dayret_to20250402
@@ -118,13 +118,3 @@ IGNORE 1 ROWS;
 
 
 
-
-SELECT * FROM balancesheet LIMIT 500;
-SELECT * FROM incomestatement LIMIT 500;
-SELECT * FROM adjprice_to20250227 LIMIT 500;
-
-SELECT DISTINCT origin_name FROM balancesheet;
-SELECT DISTINCT origin_name FROM incomestatement;
-SELECT  MIN(type),origin_name FROM incomestatement GROUP BY origin_name;
-SELECT count(origin_name),origin_name from incomestatement GROUP BY origin_name;
-SELECT count(`type`),`type` from incomestatement GROUP BY `type`;

@@ -311,7 +311,7 @@ UMD_wide = UMD_long.pivot(index = ['ret_date'],
                           values = 'Portret')
 
 UMD_wide = UMD_wide.assign(
-    UMD = lambda x:(x.s1_mom3+x.s2_mom3-x.s1_mom1-x.s2_mom1)/2)
+    UMD = lambda x:(x.s1mom3+x.s2mom3-x.s1mom1-x.s2mom1)/2)
 
 # %%
 
@@ -327,7 +327,8 @@ FF6_long = FF6_wide.melt(id_vars = 'ret_date',
 # %%
 
 ls = %who_ls
-vtr = [x for x in ls if x not in ['FF6_long','FF6_wide','pd','engine'] ]
+vtr = [x for x in ls if x not in ['FF6_long','FF6_wide',
+                                  'pd','engine','Tableau_df'] ]
 for x in vtr:
     del globals()[x]
 del ls,x,vtr
